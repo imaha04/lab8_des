@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Камень, ножницы, бумага</title>
+</head>
+<body>
+  <h1>Игра "Камень, ножницы, бумага"</h1>
+  <p>Выберите свой ход:</p>
+  <button onclick="makeMove('камень')">Камень</button>
+  <button onclick="makeMove('ножницы')">Ножницы</button>
+  <button onclick="makeMove('бумага')">Бумага</button>
+  <div id="result"></div>
+
+  <script>
+    async function makeMove(playerMove) {
+      const response = await fetch('/api/play', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ move: playerMove })
+      });
+      const data = await response.json();
+      document.getElementById('result').innerText = `Вы выбрали ${playerMove}, компьютер выбрал ${data.computerMove}. ${data.result}`;
+    }
+  </script>
+</body>
+</html>
