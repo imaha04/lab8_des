@@ -44,26 +44,26 @@
 
         // ABI вашего контракта
         const abi = [
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "playerMove",
-				"type": "uint256"
-			}
-		],
-		"name": "play",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-]; // Замените на ABI вашего контракта
+          {
+            "inputs": [
+              {
+                "internalType": "uint256",
+                "name": "playerMove",
+                "type": "uint256"
+              }
+            ],
+            "name": "play",
+            "outputs": [
+              {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ]; // Замените на ABI вашего контракта
 
         // Создаем экземпляр контракта
         const contract = new web3.eth.Contract(abi, contractAddress);
