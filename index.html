@@ -3,26 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Камень, ножницы, бумага</title>
+  <title>Rock Paper Scissors</title>
 </head>
 <body>
-  <h1>Игра "Камень, ножницы, бумага"</h1>
-  <p>Выберите свой ход:</p>
-  <button onclick="makeMove(1)">Камень</button>
-  <button onclick="makeMove(2)">Ножницы</button>
-  <button onclick="makeMove(3)">Бумага</button>
+  <h1>Rock Paper Scissors</h1>
+  <p>Select your move:</p>
+  <button onclick="makeMove(1)">Rock</button>
+  <button onclick="makeMove(2)">Scissors</button>
+  <button onclick="makeMove(3)">Paper</button>
   <div id="result"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
   <script>
-    // Подключаемся к сети Ethereum
-    const web3 = new Web3('https://ropsten.infura.io/v3/your_infura_project_id');
+    // Подключаемся к MetaMask
+    window.addEventListener('load', async () => {
+      // Подключаем MetaMask
+      if (window.ethereum) {
+        window.web3 = new Web3(ethereum);
+        try {
+          // Запрашиваем разрешение на подключение к аккаунту
+          await ethereum.enable();
+        } catch (error) {
+          // Пользователь отклонил запрос на подключение к аккаунту
+          console.error("User denied account access");
+        }
+      }
+      // MetaMask не установлен
+      else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider);
+      }
+      // MetaMask не доступен
+      else {
+        console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+      }
+    });
 
-    // Адрес контракта Solidity
-    const contractAddress = '0x1aaE7B405E2Cd5a6Aaed3205af024A7FFa2F2feb'; // Замените на адрес вашего контракта
+    async function makeMove(playerMove) {
+      try {
+        // Адрес контракта Solidity
+        const contractAddress = '0xE5DD0501E2AADD487b145C71Ee0D6cdCc83E5595'; // Замените на адрес вашего контракта
 
-    // ABI вашего контракта
-    const abi = [
+        // ABI вашего контракта
+        const abi = [
 	{
 		"inputs": [
 			{
@@ -44,14 +66,16 @@
 	}
 ]; // Замените на ABI вашего контракта
 
-    // Создаем экземпляр контракта
-    const contract = new web3.eth.Contract(abi, contractAddress);
+        // Создаем экземпляр контракта
+        const contract = new web3.eth.Contract(abi, contractAddress);
 
-    async function makeMove(playerMove) {
-      try {
+        // Получаем аккаунт пользователя из MetaMask
+        const accounts = await web3.eth.getAccounts();
+        const userAccount = accounts[0];
+
         // Вызываем метод play контракта Solidity
-        const result = await contract.methods.play(playerMove).call();
-        
+        const result = await contract.methods.play(playerMove).call({ from: userAccount });
+
         // Выводим результат игры
         console.log(result);
         document.getElementById('result').innerText = result;
