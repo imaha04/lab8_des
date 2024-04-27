@@ -8,22 +8,36 @@
 <body>
   <h1>Игра "Камень, ножницы, бумага"</h1>
   <p>Выберите свой ход:</p>
-  <button onclick="makeMove('камень')">Камень</button>
-  <button onclick="makeMove('ножницы')">Ножницы</button>
-  <button onclick="makeMove('бумага')">Бумага</button>
+  <button onclick="makeMove(1)">Камень</button>
+  <button onclick="makeMove(2)">Ножницы</button>
+  <button onclick="makeMove(3)">Бумага</button>
   <div id="result"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
   <script>
+    // Подключаемся к сети Ethereum
+    const web3 = new Web3('https://ropsten.infura.io/v3/your_infura_project_id');
+
+    // Адрес контракта Solidity
+    const contractAddress = '0x83D6d6528A4368B54472d6c1612A333e56eD6FDd'; // Замените на адрес вашего контракта
+
+    // ABI вашего контракта
+    const abi = [...]; // Замените на ABI вашего контракта
+
+    // Создаем экземпляр контракта
+    const contract = new web3.eth.Contract(abi, contractAddress);
+
     async function makeMove(playerMove) {
-      const response = await fetch('/api/play', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ move: playerMove })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerText = `Вы выбрали ${playerMove}, компьютер выбрал ${data.computerMove}. ${data.result}`;
+      try {
+        // Вызываем метод play контракта Solidity
+        const result = await contract.methods.play(playerMove).call();
+        
+        // Выводим результат игры
+        console.log(result);
+        document.getElementById('result').innerText = result;
+      } catch (error) {
+        console.error('Ошибка:', error);
+      }
     }
   </script>
 </body>
