@@ -4,6 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rock Paper Scissors</title>
+  <style>
+    #result-message {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: white;
+      border: 1px solid black;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body>
   <h1>Rock Paper Scissors</h1>
@@ -11,7 +26,10 @@
   <button onclick="makeMove(1)">Rock</button>
   <button onclick="makeMove(2)">Scissors</button>
   <button onclick="makeMove(3)">Paper</button>
-  <div id="result"></div>
+  <div id="result-message">
+    <p id="result-text"></p>
+    <button onclick="closeResult()">Close</button>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
   <script>
@@ -43,7 +61,7 @@
         const contractAddress = '0x39d82C3E5B6918b17327C08d64D45BaF1edF6BbB'; // Замените на адрес вашего контракта
 
         // ABI вашего контракта
-        const abi =[
+        const abi = [
 	{
 		"anonymous": false,
 		"inputs": [
@@ -70,7 +88,7 @@
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-]; // Замените на ABI вашего контракта
+];
 
         // Создаем экземпляр контракта
         const contract = new web3.eth.Contract(abi, contractAddress);
@@ -91,18 +109,24 @@
         const logs = receipt.logs.filter(log => log.topics.includes(eventTopic));
         const event = contract.methods.decodeEventABI(eventABI, logs[0]);
 
-        // Обновляем результат на странице HTML
-        updateResult(event.returnValues.result);
+        // Отображаем результат на странице HTML
+        showResult(event.returnValues.result);
       } catch (error) {
         console.error('Error playing game:', error);
       }
     }
 
-    // Функция для обновления результата на странице HTML 
-    function updateResult(result) { 
-        const resultElement = document.getElementById('result'); 
-        resultElement.innerHTML = result; 
+    // Функция для отображения результата на странице HTML 
+    function showResult(result) { 
+        const resultText = document.getElementById('result-text'); 
+        resultText.innerText = result; 
+        document.getElementById('result-message').style.display = 'block';
      } 
+
+    // Функция для закрытия сообщения о результате
+    function closeResult() {
+      document.getElementById('result-message').style.display = 'none';
+    }
   </script>
 </body>
 </html>
