@@ -14,28 +14,36 @@
   <div id="result"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
-<script> 
-        // Проверка доступности Web3 и активации MetaMask 
-        window.addEventListener('load', async () => { 
-            if (window.ethereum) { 
-                window.web3 = new Web3(window.ethereum); 
-                try { 
-                    // Запрос разрешения на доступ к аккаунту MetaMask 
-                    await ethereum.request({ method: 'eth_requestAccounts' }); 
-                    console.log('MetaMask is enabled.'); 
-                } catch (error) { 
-                    console.error('User denied account access to MetaMask:', error); 
-                } 
-            } else { 
-                console.error('MetaMask is not installed!'); 
-            } 
-        }); 
- 
-        // Функция для вызова функции play вашего контракта 
-        async function playGame(move) { 
-            const accounts = await window.web3.eth.getAccounts(); 
-            const contractAddress = '0x39d82C3E5B6918b17327C08d64D45BaF1edF6BbB'; 
-            const abi =[
+  <script>
+    window.addEventListener('load', async () => {
+      // Подключаем MetaMask
+      if (window.ethereum) {
+        window.web3 = new Web3(ethereum);
+        try {
+          // Запрашиваем разрешение на подключение к аккаунту
+          await ethereum.enable();
+        } catch (error) {
+          // Пользователь отклонил запрос на подключение к аккаунту
+          console.error("User denied account access");
+        }
+      }
+      // MetaMask не установлен
+      else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider);
+      }
+      // MetaMask не доступен
+      else {
+        console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+      }
+    });
+
+    async function makeMove(playerMove) {
+      try {
+        // Адрес контракта Solidity
+        const contractAddress = '0xaaA41Dde3d8c025C70138F798Bd1b1b2CcC2D7A5'; // Замените на адрес вашего контракта
+
+        // ABI вашего контракта
+        const abi = [
 	{
 		"anonymous": false,
 		"inputs": [
@@ -58,55 +66,49 @@
 			}
 		],
 		"name": "play",
-		"outputs": [],
+		"outputs": [
+			{
+				"internalType": "enum RockPaperScissors.Result",
+				"name": "",
+				"type": "uint8"
+			}
+		],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-]; 
-            const contract = new window.web3.eth.Contract(abi, contractAddress); 
- 
-            try { 
-                // Отправка транзакции из аккаунта MetaMask 
-                const result = await contract.methods.play(move).send({ from: accounts[0] }); 
-                console.log('Game played successfully:', result); 
- 
-                // Ожидание завершения транзакции 
-                const receipt = await window.web3.eth.getTransactionReceipt(result.transactionHash); 
- 
-                // Получение результата игры из события GamePlayed 
-                const eventABI = abi.find(abi => abi.name === 'GamePlayed'); 
-                const eventTopic = window.web3.utils.sha3('GamePlayed(address,uint8,uint8,uint8)'); 
-                const logs = receipt.logs.filter(log => log.topics.includes(eventTopic)); 
-                const event = contract._decodeEventABI.call(eventABI, logs[0]); 
- 
-                // Обновление результата на странице HTML 
-                updateResult(event.returnValues); 
-            } catch (error) { 
-                console.error('Error playing game:', error); 
-            } 
-        } 
- 
-        // Функция для обновления результата на странице HTML 
-        function updateResult({ playerMove, machineMove, result }) { 
-            const resultElement = document.getElementById('result'); 
- 
-            // Map numerical values to their corresponding strings 
-            const moveMap = { 
-                1: 'rock', 
-                2: 'paper', 
-                3: 'scissors' 
-            }; 
- 
-            const resultMap = { 
-                1: 'win', 
-                2: 'lose', 
-                3: 'draw' 
-            }; 
- 
-            // Update result element with mapped values 
-            resultElement.innerHTML = Player move: ${moveMap[playerMove]}, Machine move: ${moveMap[machineMove]}, Result: ${resultMap[result]}; 
-         } 
-    </script> 
- 
-</body> 
+]; // Замените на ABI вашего контракта
+
+        // Создаем экземпляр контракта
+        const contract = new web3.eth.Contract(abi, contractAddress);
+
+        // Получаем аккаунт пользователя из MetaMask
+        const accounts = await web3.eth.getAccounts();
+        const userAccount = accounts[0];
+
+        // Отправляем транзакцию из аккаунта MetaMask
+        const result = await contract.methods.play(playerMove).send({ from: userAccount });
+
+        // Ожидаем завершения транзакции
+        const receipt = await web3.eth.getTransactionReceipt(result.transactionHash);
+
+        // Получаем результат игры из события GameResult
+        const eventABI = abi.find(abi => abi.name === 'GameResult');
+        const eventTopic = web3.utils.sha3('GameResult(string)');
+        const logs = receipt.logs.filter(log => log.topics.includes(eventTopic));
+        const event = contract.methods.decodeEventABI(eventABI, logs[0]);
+
+        // Обновляем результат на странице HTML
+        updateResult(event.returnValues.result);
+      } catch (error) {
+        console.error('Error playing game:', error);
+      }
+    }
+
+    // Функция для обновления результата на странице HTML 
+    function updateResult(result) { 
+        const resultElement = document.getElementById('result'); 
+        resultElement.innerHTML = result; 
+     } 
+  </script>
+</body>
 </html>
