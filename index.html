@@ -40,10 +40,10 @@
     async function makeMove(playerMove) {
       try {
         // Адрес контракта Solidity
-        const contractAddress = '0xaaA41Dde3d8c025C70138F798Bd1b1b2CcC2D7A5'; // Замените на адрес вашего контракта
+        const contractAddress = '0x39d82C3E5B6918b17327C08d64D45BaF1edF6BbB'; // Замените на адрес вашего контракта
 
         // ABI вашего контракта
-        const abi = [
+        const abi =[
 	{
 		"anonymous": false,
 		"inputs": [
@@ -66,13 +66,7 @@
 			}
 		],
 		"name": "play",
-		"outputs": [
-			{
-				"internalType": "enum RockPaperScissors.Result",
-				"name": "",
-				"type": "uint8"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
