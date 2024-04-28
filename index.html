@@ -84,11 +84,19 @@
 
         // Выводим результат игры
         console.log(result);
-        document.getElementById('result').innerText = result;
+        updateResult(result);
       } catch (error) {
         console.error('Ошибка:', error);
       }
     }
+
+    // Функция для обновления результата на странице HTML 
+    function updateResult(result) { 
+        const resultElement = document.getElementById('result'); 
+
+        // Update result element 
+        resultElement.innerHTML = result; 
+     } 
   </script>
 </body>
 </html>
