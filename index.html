@@ -58,37 +58,37 @@
     async function makeMove(playerMove) {
       try {
         // Адрес контракта Solidity
-        const contractAddress = '0x39d82C3E5B6918b17327C08d64D45BaF1edF6BbB'; // Замените на адрес вашего контракта
+        const contractAddress = '0x39d82C3E5B6918b17327C08d64D45BaF1edF6BbB'; // Адрес вашего контракта
 
         // ABI вашего контракта
         const abi = [
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "result",
-				"type": "string"
-			}
-		],
-		"name": "GameResult",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "enum RockPaperScissors.Choice",
-				"name": "_playerChoice",
-				"type": "uint8"
-			}
-		],
-		"name": "play",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	}
-];
+          {
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": false,
+                "internalType": "string",
+                "name": "result",
+                "type": "string"
+              }
+            ],
+            "name": "GameResult",
+            "type": "event"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "enum RockPaperScissors.Choice",
+                "name": "_playerChoice",
+                "type": "uint8"
+              }
+            ],
+            "name": "play",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ];
 
         // Создаем экземпляр контракта
         const contract = new web3.eth.Contract(abi, contractAddress);
@@ -103,14 +103,12 @@
         // Ожидаем завершения транзакции
         const receipt = await web3.eth.getTransactionReceipt(result.transactionHash);
 
-        // Получаем результат игры из события GameResult
-        const eventABI = abi.find(abi => abi.name === 'GameResult');
-        const eventTopic = web3.utils.sha3('GameResult(string)');
-        const logs = receipt.logs.filter(log => log.topics.includes(eventTopic));
-        const event = contract.methods.decodeEventABI(eventABI, logs[0]);
+        // Получаем результат игры из логов события GameResult
+        const logs = receipt.logs.filter(log => log.topics.includes(web3.utils.sha3('GameResult(string)')));
+        const decodedLog = web3.eth.abi.decodeLog([{ type: 'string', name: 'result', indexed: false }], logs[0].data, logs[0].topics.slice(1));
 
         // Отображаем результат на странице HTML
-        showResult(event.returnValues.result);
+        showResult(decodedLog.result);
       } catch (error) {
         console.error('Error playing game:', error);
       }
