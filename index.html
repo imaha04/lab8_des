@@ -23,9 +23,9 @@
 <body>
   <h1>Rock Paper Scissors</h1>
   <p>Select your move:</p>
-  <button onclick="makeMove(1)">Rock</button>
+  <button onclick="makeMove(0)">Rock</button>
+  <button onclick="makeMove(1)">Paper</button>
   <button onclick="makeMove(2)">Scissors</button>
-  <button onclick="makeMove(3)">Paper</button>
   <div id="result-message">
     <p id="result-text"></p>
     <button onclick="closeResult()">Close</button>
@@ -55,40 +55,40 @@
       }
     });
 
-    async function makeMove(playerMove) {
+    async function makeMove(playerChoice) {
       try {
         // Адрес контракта Solidity
-        const contractAddress = '0x39d82C3E5B6918b17327C08d64D45BaF1edF6BbB'; // Адрес вашего контракта
+        const contractAddress = '0x9007e2Ce368e40Afe8720212A40774DadD558Be6'; // Адрес вашего контракта
 
         // ABI вашего контракта
         const abi = [
-          {
-            "anonymous": false,
-            "inputs": [
-              {
-                "indexed": false,
-                "internalType": "string",
-                "name": "result",
-                "type": "string"
-              }
-            ],
-            "name": "GameResult",
-            "type": "event"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "enum RockPaperScissors.Choice",
-                "name": "_playerChoice",
-                "type": "uint8"
-              }
-            ],
-            "name": "play",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          }
-        ];
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "result",
+				"type": "string"
+			}
+		],
+		"name": "GameResult",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "enum RockPaperScissors.Choice",
+				"name": "_playerChoice",
+				"type": "uint8"
+			}
+		],
+		"name": "play",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+];
 
         // Создаем экземпляр контракта
         const contract = new web3.eth.Contract(abi, contractAddress);
@@ -98,7 +98,7 @@
         const userAccount = accounts[0];
 
         // Отправляем транзакцию из аккаунта MetaMask
-        const result = await contract.methods.play(playerMove).send({ from: userAccount });
+        const result = await contract.methods.play(playerChoice).send({ from: userAccount });
 
         // Ожидаем завершения транзакции
         const receipt = await web3.eth.getTransactionReceipt(result.transactionHash);
