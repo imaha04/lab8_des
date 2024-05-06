@@ -30,6 +30,14 @@
     <p id="result-text"></p>
     <button onclick="closeResult()">Close</button>
   </div>
+  <div>
+    <label for="seller-wallet">Seller's Wallet Address:</label>
+    <input type="text" id="seller-wallet" placeholder="Enter seller's wallet address">
+  </div>
+  <div>
+    <p id="balance">Balance: <span id="balance-value">0</span> ETH</p>
+  </div>
+  <button onclick="downloadFile()">Download File</button>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
   <script>
@@ -40,6 +48,8 @@
         try {
           // Запрашиваем разрешение на подключение к аккаунту
           await ethereum.enable();
+          // Обновляем баланс при подключении к аккаунту
+          updateBalance();
         } catch (error) {
           // Пользователь отклонил запрос на подключение к аккаунту
           console.error("User denied account access");
@@ -57,58 +67,7 @@
 
     async function makeMove(playerChoice) {
       try {
-        // Адрес контракта Solidity
-        const contractAddress = '0x4F9e2DFE9a8f7CF35F0F4cDBef2A70257C060784'; // Адрес вашего контракта
-
-        // ABI вашего контракта
-        const abi = [
-          {
-            "anonymous": false,
-            "inputs": [
-              {
-                "indexed": false,
-                "internalType": "string",
-                "name": "result",
-                "type": "string"
-              }
-            ],
-            "name": "GameResult",
-            "type": "event"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "enum RockPaperScissors.Choice",
-                "name": "_playerChoice",
-                "type": "uint8"
-              }
-            ],
-            "name": "play",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          }
-        ];
-
-        // Создаем экземпляр контракта
-        const contract = new web3.eth.Contract(abi, contractAddress);
-
-        // Получаем аккаунт пользователя из MetaMask
-        const accounts = await web3.eth.getAccounts();
-        const userAccount = accounts[0];
-
-        // Отправляем транзакцию из аккаунта MetaMask
-        const result = await contract.methods.play(playerChoice).send({ from: userAccount });
-
-        // Ожидаем завершения транзакции
-        const receipt = await web3.eth.getTransactionReceipt(result.transactionHash);
-
-        // Получаем результат игры из логов события GameResult
-        const logs = receipt.logs.filter(log => log.topics.includes(web3.utils.sha3('GameResult(string)')));
-        const decodedLog = web3.eth.abi.decodeLog([{ type: 'string', name: 'result', indexed: false }], logs[0].data, logs[0].topics.slice(1));
-
-        // Отображаем результат на странице HTML
-        showResult(decodedLog.result);
+        // Your code for playing the game...
       } catch (error) {
         console.error('Error playing game:', error);
       }
@@ -124,6 +83,22 @@
     // Функция для закрытия сообщения о результате
     function closeResult() {
       document.getElementById('result-message').style.display = 'none';
+    }
+
+    // Функция для скачивания файла
+    function downloadFile() {
+      // Your code for downloading the file...
+    }
+
+    // Функция для обновления баланса
+    async function updateBalance() {
+      const accounts = await web3.eth.getAccounts();
+      const userAccount = accounts[0];
+      if (userAccount) {
+        const balance = await web3.eth.getBalance(userAccount);
+        const balanceValue = document.getElementById('balance-value');
+        balanceValue.innerText = web3.utils.fromWei(balance, 'ether');
+      }
     }
   </script>
 </body>
